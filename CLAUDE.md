@@ -37,6 +37,8 @@ public/
 3. The user opens a PR and merges it into `main`
 4. After the merge, switch to `main`, pull, and create a new branch for the next prompt
 
+- The user's own edits to any file, including `README.md`, are kept exactly as they are: never revert, rewrite, or reformat them
+- Always include the user's own edits in the commit and PR for the current branch
 - Never commit feature work directly to `main`
 - Branch names: `feature/<short-name>`, `fix/<short-name>`, or `chore/<short-name>`
 
