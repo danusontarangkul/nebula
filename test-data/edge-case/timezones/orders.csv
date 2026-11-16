@@ -1,0 +1,6 @@
+order_id,created_at,customer_id,product,country,status,is_test
+ord_tz_au,2026-05-01T09:00:00+10:00,cus_tz0,wgs_30x,AU,paid,false
+ord_tz_gb,2026-05-01T00:30:00+01:00,cus_tz1,wgs_30x,GB,paid,false
+ord_tz_us,2026-04-30T21:00:00-05:00,cus_tz2,wgs_30x,US,paid,false
+ord_tz_nl,2026-05-01T00:00:00Z,cus_tz3,wgs_30x,NL,paid,false
+ord_tz_ca,2026-05-01T23:30:00-07:00,cus_tz4,wgs_30x,CA,paid,false
