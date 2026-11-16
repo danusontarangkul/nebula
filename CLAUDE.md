@@ -7,6 +7,7 @@ React, TypeScript, Vite, Tailwind CSS, PapaParse, Recharts, Vitest, React Testin
 ## Commands
 
 - `npm run dev`: start the dev server
+- `npm run lint`: lint with oxlint (fails on warnings)
 - `npm test`: run unit tests
 - `npm run build`: type-check and build
 
@@ -22,6 +23,24 @@ public/
   orders.csv
   kit_events.csv
 ```
+
+## Workflow
+
+### Only build what is asked
+- Implement only what the current prompt asks for
+- Do not add extra features, utils, files, dependencies, or tests beyond what the prompt needs
+- If something extra seems useful, suggest it in the reply instead of building it
+
+### Git flow
+1. Before starting a new feature, create a new branch from the latest `main`
+2. The user prompts, then revises the code until it is right
+3. The user opens a PR and merges it into `main`
+4. After the merge, switch to `main`, pull, and create a new branch for the next prompt
+
+- The user's own edits to any file, including `README.md`, are kept exactly as they are: never revert, rewrite, or reformat them
+- Always include the user's own edits in the commit and PR for the current branch
+- Never commit feature work directly to `main`
+- Branch names: `feature/<short-name>`, `fix/<short-name>`, or `chore/<short-name>`
 
 ## Code Rules
 
