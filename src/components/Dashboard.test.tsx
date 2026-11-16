@@ -33,7 +33,7 @@ const DATASET: Dataset = {
   ],
 };
 
-describe("Dashboard order drill-down", () => {
+describe("Dashboard", () => {
   it("opens an order's details and kit timelines from the search", () => {
     render(<Dashboard data={DATASET} />);
 
@@ -82,5 +82,35 @@ describe("Dashboard order drill-down", () => {
     fireEvent.keyDown(window, { key: "Escape" });
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("applies filters to every panel and clears them in one action", () => {
+    const dataset: Dataset = {
+      orders: [
+        { ...makeOrder("ord_us"), country: "US" },
+        { ...makeOrder("ord_gb"), country: "GB" },
+      ],
+      kitEvents: [
+        makeEvent("ord_us", "kit_us", "kit_shipped", "2026-05-02T00:00:00Z"),
+        makeEvent("ord_gb", "kit_gb", "kit_shipped", "2026-05-02T00:00:00Z"),
+        makeEvent("ord_gb", "kit_gb", "kit_delivered", "2026-10-20T00:00:00Z"),
+      ],
+    };
+    render(<Dashboard data={dataset} />);
+    const totalOrders = (): string | null => screen.getByText("Total orders").nextElementSibling?.textContent ?? null;
+
+    expect(totalOrders()).toBe("2");
+    expect(screen.getByRole("button", { name: "ord_us" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Country"), { target: { value: "GB" } });
+
+    expect(totalOrders()).toBe("1");
+    expect(screen.queryByRole("button", { name: "ord_us" })).not.toBeInTheDocument();
+    expect(screen.getByText(/as of Oct 20, 2026/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+
+    expect(totalOrders()).toBe("2");
+    expect(screen.getByLabelText("Country")).toHaveValue("");
   });
 });

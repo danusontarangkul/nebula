@@ -108,3 +108,15 @@ export type OrderDetail = {
   order: Order;
   kits: KitDetail[];
 };
+
+export type DashboardFilters = {
+  startDate: string;
+  endDate: string;
+  product: string;
+  country: string;
+};
+
+export type FilterOptions = {
+  products: string[];
+  countries: string[];
+};
