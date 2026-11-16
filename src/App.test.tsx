@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi, type MockInstance } from "vitest";
 import { App } from "./App.tsx";
 
@@ -63,5 +63,69 @@ describe("App", () => {
     render(<App />);
 
     expect(await screen.findByRole("alert")).toHaveTextContent("orders.csv is missing required columns");
+  });
+
+  it("replaces the data with an uploaded pair of CSVs", async () => {
+    mockFetch({
+      "orders.csv": new Response(ORDERS_CSV),
+      "kit_events.csv": new Response(KIT_EVENTS_CSV),
+    });
+    render(<App />);
+    await screen.findByRole("heading", { name: "Pipeline overview" });
+    const totalOrders = (): string | null => screen.getByText("Total orders").nextElementSibling?.textContent ?? null;
+    expect(totalOrders()).toBe("1");
+
+    const uploadedOrders: string = `${ORDERS_CSV}ord_2,2026-05-01T00:00:00Z,cus_2,wgs_100x,GB,paid,false\n`;
+    fireEvent.change(screen.getByLabelText("Orders CSV"), {
+      target: { files: [new File([uploadedOrders], "orders_new.csv", { type: "text/csv" })] },
+    });
+    fireEvent.change(screen.getByLabelText("Kit events CSV"), {
+      target: { files: [new File([KIT_EVENTS_CSV], "kit_events_new.csv", { type: "text/csv" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Load files" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Showing uploaded data from orders_new.csv and kit_events_new.csv",
+    );
+    await waitFor((): void => {
+      expect(totalOrders()).toBe("2");
+    });
+  });
+
+  it("keeps the current data and shows an error when an uploaded file is missing a column", async () => {
+    mockFetch({
+      "orders.csv": new Response(ORDERS_CSV),
+      "kit_events.csv": new Response(KIT_EVENTS_CSV),
+    });
+    render(<App />);
+    await screen.findByRole("heading", { name: "Pipeline overview" });
+
+    fireEvent.change(screen.getByLabelText("Orders CSV"), {
+      target: { files: [new File(["order_id\nord_9\n"], "bad.csv", { type: "text/csv" })] },
+    });
+    fireEvent.change(screen.getByLabelText("Kit events CSV"), {
+      target: { files: [new File([KIT_EVENTS_CSV], "kit_events_new.csv", { type: "text/csv" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Load files" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "orders.csv is missing required columns: created_at, customer_id, product, country, status, is_test. The current data is still loaded.",
+    );
+    expect(screen.getByText("Total orders").nextElementSibling).toHaveTextContent("1");
+  });
+
+  it("only enables loading once both files are selected", async () => {
+    mockFetch({
+      "orders.csv": new Response(ORDERS_CSV),
+      "kit_events.csv": new Response(KIT_EVENTS_CSV),
+    });
+    render(<App />);
+    await screen.findByRole("heading", { name: "Pipeline overview" });
+
+    expect(screen.getByRole("button", { name: "Load files" })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Orders CSV"), {
+      target: { files: [new File([ORDERS_CSV], "orders.csv", { type: "text/csv" })] },
+    });
+    expect(screen.getByRole("button", { name: "Load files" })).toBeDisabled();
   });
 });

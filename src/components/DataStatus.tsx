@@ -4,9 +4,10 @@ import { Dashboard } from "./Dashboard.tsx";
 
 type DataStatusProps = {
   state: AsyncState<Dataset>;
+  dataKey: number;
 };
 
-export const DataStatus = ({ state }: DataStatusProps): JSX.Element => {
+export const DataStatus = ({ state, dataKey }: DataStatusProps): JSX.Element => {
   if (state.status === "loading") {
     return <p className="mt-4 text-slate-500">Loading data…</p>;
   }
@@ -17,5 +18,5 @@ export const DataStatus = ({ state }: DataStatusProps): JSX.Element => {
       </p>
     );
   }
-  return <Dashboard data={state.data} />;
+  return <Dashboard key={dataKey} data={state.data} />;
 };

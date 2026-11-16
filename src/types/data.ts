@@ -134,3 +134,16 @@ export type CleanedData = {
   dataset: Dataset;
   report: CleaningReport;
 };
+
+export type UploadState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "error"; message: string }
+  | { status: "success"; fileNames: string[] };
+
+export type CsvUpload = {
+  state: UploadState;
+  dataset: Dataset | null;
+  uploadCount: number;
+  upload: (ordersFile: File, kitEventsFile: File) => Promise<void>;
+};
