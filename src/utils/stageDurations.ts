@@ -1,48 +1,16 @@
 import { DURATION_STAGES } from "../constants/pipeline.ts";
+import { DAY_MS } from "../constants/time.ts";
 import type {
   Dataset,
   DurationStage,
-  KitEvent,
   KitStage,
+  KitTimeline,
   Order,
   StageDurationRow,
   StageDurationSummary,
 } from "../types/data.ts";
-import { isKitStage } from "./isKitStage.ts";
-import { toUtcDate } from "./toUtcDate.ts";
-
-const DAY_MS: number = 86_400_000;
-
-type KitTimeline = {
-  orderId: string;
-  times: Map<KitStage, number>;
-};
-
-const toTime = (raw: string): number | null => {
-  const date: Date | null = toUtcDate(raw);
-  return date === null ? null : date.getTime();
-};
-
-const buildKitTimelines = (kitEvents: KitEvent[]): Map<string, KitTimeline> => {
-  const timelines: Map<string, KitTimeline> = new Map();
-  for (const kitEvent of kitEvents) {
-    const eventType: string = kitEvent.eventType.trim();
-    const time: number | null = toTime(kitEvent.occurredAt);
-    if (!isKitStage(eventType) || time === null) {
-      continue;
-    }
-    const timeline: KitTimeline = timelines.get(kitEvent.kitId) ?? {
-      orderId: kitEvent.orderId,
-      times: new Map(),
-    };
-    const existingTime: number | undefined = timeline.times.get(eventType);
-    if (existingTime === undefined || time < existingTime) {
-      timeline.times.set(eventType, time);
-    }
-    timelines.set(kitEvent.kitId, timeline);
-  }
-  return timelines;
-};
+import { buildKitTimelines } from "./kitTimelines.ts";
+import { toTime } from "./toTime.ts";
 
 const buildReplacementTimes = (timelines: Map<string, KitTimeline>): Map<string, number[]> => {
   const replacementTimes: Map<string, number[]> = new Map();

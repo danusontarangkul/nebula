@@ -71,3 +71,21 @@ export type StageDurationSummary = {
   products: string[];
   rows: StageDurationRow[];
 };
+
+export type KitTimeline = {
+  orderId: string;
+  times: Map<KitStage, number>;
+};
+
+export type StuckKit = {
+  orderId: string;
+  kitId: string;
+  product: string;
+  currentStage: KitStage;
+  daysOverTarget: number;
+};
+
+export type StuckKitsSummary = {
+  asOfTime: number | null;
+  kits: StuckKit[];
+};
