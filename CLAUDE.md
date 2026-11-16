@@ -17,6 +17,7 @@ React, TypeScript, Vite, Tailwind CSS, PapaParse, Recharts, Vitest, React Testin
 src/
   components/   React components (UI only)
   hooks/        React hooks
+  services/     Side effects: fetching and reading files
   utils/        Pure functions: parsing, cleaning, metrics
   types/        Shared TypeScript types
 public/
@@ -62,6 +63,17 @@ const kitIds: string[] = [];
 const byOrderId: Map<string, Order> = new Map();
 ```
 
+### Returns on their own line
+
+- Never put a `return` on the same line as an `if`
+- Always wrap the `if` body in braces, with the `return` on a new line
+
+```ts
+if (isCancelled) {
+  return;
+}
+```
+
 ### No comments
 
 - Do not write code comments
@@ -83,6 +95,22 @@ export const toUtcDate = (raw: string): Date | null => {
 };
 ```
 
+### Services folder
+
+- Code with side effects (network requests, reading files) lives in `src/services/`, never in `src/utils/` or inside a hook file
+- Hooks call services for I/O and utils for data logic
+- Hook files contain only the hook
+
+```ts
+export const fetchText = async (fileName: string): Promise<string> => {
+  const response: Response = await fetch(`${import.meta.env.BASE_URL}${fileName}`);
+  if (!response.ok) {
+    throw new Error(`Failed to load ${fileName} (${response.status})`);
+  }
+  return response.text();
+};
+```
+
 ### Loading, error, and success states
 
 - Every async operation (loading the bundled CSVs, uploading CSVs) uses a single state type
@@ -99,8 +127,12 @@ export type AsyncState<T> =
 export const Dashboard = (): JSX.Element => {
   const state: AsyncState<DashboardData> = useDashboardData();
 
-  if (state.status === "loading") return <LoadingState />;
-  if (state.status === "error") return <ErrorState message={state.message} />;
+  if (state.status === "loading") {
+    return <LoadingState />;
+  }
+  if (state.status === "error") {
+    return <ErrorState message={state.message} />;
+  }
   return <DashboardView data={state.data} />;
 };
 ```
