@@ -1,4 +1,4 @@
-import { DURATION_STAGES, KIT_STAGE_RANKS } from "../constants/pipeline.ts";
+import { DURATION_STAGES, KIT_STAGE_RANKS, NO_KIT_PRODUCTS } from "../constants/pipeline.ts";
 import { DAY_MS } from "../constants/time.ts";
 import type {
   Dataset,
@@ -11,6 +11,7 @@ import type {
 } from "../types/data.ts";
 import { isTestOrder } from "./isTestOrder.ts";
 import { buildKitTimelines } from "./kitTimelines.ts";
+import { toTime } from "./toTime.ts";
 
 const EXCLUDED_ORDER_STATUSES: readonly string[] = ["cancelled", "refunded"];
 
@@ -31,6 +32,53 @@ const getFurthestStage = (timeline: KitTimeline): KitStage | null => {
 
 const findWaitingStage = (currentStage: KitStage): DurationStage | undefined => {
   return DURATION_STAGES.find((stage: DurationStage): boolean => stage.start === currentStage);
+};
+
+const getOrderToShipTarget = (): number | null => {
+  const stage: DurationStage | undefined = DURATION_STAGES.find(
+    (candidate: DurationStage): boolean => candidate.start === "order_created",
+  );
+  return stage === undefined ? null : stage.targetDays;
+};
+
+const isKitProduct = (order: Order): boolean => {
+  return !NO_KIT_PRODUCTS.includes(order.product.trim().toLowerCase());
+};
+
+const findUnshippedOrders = (
+  orders: Order[],
+  timelines: Map<string, KitTimeline>,
+  asOfTime: number,
+): StuckKit[] => {
+  const targetDays: number | null = getOrderToShipTarget();
+  if (targetDays === null) {
+    return [];
+  }
+  const orderIdsWithEvents: Set<string> = new Set(
+    [...timelines.values()].map((timeline: KitTimeline): string => timeline.orderId),
+  );
+  const unshippedOrders: StuckKit[] = [];
+  for (const order of orders) {
+    if (isExcludedOrder(order) || !isKitProduct(order) || orderIdsWithEvents.has(order.orderId)) {
+      continue;
+    }
+    const createdTime: number | null = toTime(order.createdAt);
+    if (createdTime === null) {
+      continue;
+    }
+    const daysOverTarget: number = (asOfTime - createdTime) / DAY_MS - targetDays;
+    if (daysOverTarget <= 0) {
+      continue;
+    }
+    unshippedOrders.push({
+      orderId: order.orderId,
+      kitId: null,
+      product: order.product,
+      currentStage: "awaiting_shipment",
+      daysOverTarget,
+    });
+  }
+  return unshippedOrders;
 };
 
 export const getAsOfTime = (timelines: Map<string, KitTimeline>): number | null => {
@@ -84,6 +132,7 @@ export const buildStuckKits = (dataset: Dataset, fixedAsOfTime?: number | null):
     });
   }
 
+  kits.push(...findUnshippedOrders(dataset.orders, timelines, asOfTime));
   kits.sort((a: StuckKit, b: StuckKit): number => b.daysOverTarget - a.daysOverTarget);
   return { asOfTime, kits };
 };

@@ -77,11 +77,13 @@ export type KitTimeline = {
   times: Map<KitStage, number>;
 };
 
+export type StuckStage = KitStage | "awaiting_shipment";
+
 export type StuckKit = {
   orderId: string;
-  kitId: string;
+  kitId: string | null;
   product: string;
-  currentStage: KitStage;
+  currentStage: StuckStage;
   daysOverTarget: number;
 };
 
@@ -123,6 +125,8 @@ export type FilterOptions = {
 };
 
 export type CleaningReport = {
+  missingIdOrders: number;
+  missingIdEvents: number;
   normalizedTimestamps: number;
   invalidTimestampEvents: number;
   orphanEvents: number;

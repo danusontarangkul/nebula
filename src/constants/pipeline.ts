@@ -12,6 +12,10 @@ export const KIT_STAGES: readonly KitStage[] = [
   "kit_replaced",
 ];
 
+export const NO_KIT_PRODUCTS: readonly string[] = ["upload_only"];
+
+export const AWAITING_SHIPMENT_LABEL: string = "Awaiting shipment";
+
 export const KIT_STAGE_LABELS: Record<KitStage, string> = {
   kit_shipped: "Kit shipped",
   kit_delivered: "Kit delivered",
