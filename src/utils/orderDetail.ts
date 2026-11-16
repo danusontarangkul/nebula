@@ -48,7 +48,7 @@ export const buildOrderDetail = (dataset: Dataset, orderId: string): OrderDetail
   const kits: KitDetail[] = [...eventsByKitId].map(
     ([kitId, events]: [string, KitEventEntry[]]): KitDetail => ({
       kitId,
-      isReplacement: false,
+      replacesKitId: null,
       events: [...events].sort(compareEntries),
     }),
   );
@@ -57,7 +57,7 @@ export const buildOrderDetail = (dataset: Dataset, orderId: string): OrderDetail
   return {
     order,
     kits: kits.map(
-      (kit: KitDetail, index: number): KitDetail => ({ ...kit, isReplacement: index > 0 }),
+      (kit: KitDetail, index: number): KitDetail => ({ ...kit, replacesKitId: kits[index - 1]?.kitId ?? null }),
     ),
   };
 };

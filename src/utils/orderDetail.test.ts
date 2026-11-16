@@ -51,7 +51,7 @@ describe("buildOrderDetail", () => {
     expect(getEventTypes(detail?.kits[0])).toEqual(["kit_shipped", "kit_delivered", "sample_mailed"]);
   });
 
-  it("lists every kit on the order, with replacements after the original", () => {
+  it("lists every kit on the order, with each replacement linked to the kit it replaced", () => {
     const dataset: Dataset = {
       orders: [makeOrder("ord_1"), makeOrder("ord_2")],
       kitEvents: [
@@ -63,7 +63,7 @@ describe("buildOrderDetail", () => {
     };
     const detail: OrderDetail | null = buildOrderDetail(dataset, "ord_1");
     expect(detail?.kits.map((kit: KitDetail): string => kit.kitId)).toEqual(["kit_1", "kit_2"]);
-    expect(detail?.kits.map((kit: KitDetail): boolean => kit.isReplacement)).toEqual([false, true]);
+    expect(detail?.kits.map((kit: KitDetail): string | null => kit.replacesKitId)).toEqual([null, "kit_1"]);
   });
 
   it("puts events with invalid timestamps last", () => {

@@ -100,7 +100,7 @@ export type KitEventEntry = {
 
 export type KitDetail = {
   kitId: string;
-  isReplacement: boolean;
+  replacesKitId: string | null;
   events: KitEventEntry[];
 };
 
@@ -114,9 +114,23 @@ export type DashboardFilters = {
   endDate: string;
   product: string;
   country: string;
+  includeTestOrders: boolean;
 };
 
 export type FilterOptions = {
   products: string[];
   countries: string[];
+};
+
+export type CleaningReport = {
+  normalizedTimestamps: number;
+  invalidTimestampEvents: number;
+  orphanEvents: number;
+  duplicateEvents: number;
+  testOrders: number;
+};
+
+export type CleanedData = {
+  dataset: Dataset;
+  report: CleaningReport;
 };

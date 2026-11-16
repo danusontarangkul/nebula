@@ -1,5 +1,6 @@
 import { DAY_MS } from "../constants/time.ts";
 import type { DashboardFilters, Dataset, KitEvent, Order } from "../types/data.ts";
+import { isTestOrder } from "./isTestOrder.ts";
 import { toTime } from "./toTime.ts";
 
 const toDayStart = (date: string): number | null => {
@@ -11,6 +12,9 @@ export const hasActiveFilters = (filters: DashboardFilters): boolean => {
 };
 
 const matchesFilters = (order: Order, filters: DashboardFilters): boolean => {
+  if (!filters.includeTestOrders && isTestOrder(order)) {
+    return false;
+  }
   if (filters.product !== "" && order.product.trim() !== filters.product) {
     return false;
   }
@@ -36,7 +40,7 @@ const matchesFilters = (order: Order, filters: DashboardFilters): boolean => {
 };
 
 export const filterDataset = (dataset: Dataset, filters: DashboardFilters): Dataset => {
-  if (!hasActiveFilters(filters)) {
+  if (!hasActiveFilters(filters) && filters.includeTestOrders) {
     return dataset;
   }
   const orders: Order[] = dataset.orders.filter((order: Order): boolean => matchesFilters(order, filters));

@@ -46,7 +46,7 @@ describe("Dashboard", () => {
     expect(within(dialog).getByText("GB")).toBeInTheDocument();
     expect(within(dialog).getByText("paid")).toBeInTheDocument();
     expect(within(dialog).getByText("May 1, 2026, 00:00 UTC")).toBeInTheDocument();
-    expect(within(dialog).getByText("Replacement")).toBeInTheDocument();
+    expect(within(dialog).getByText(/Replaces/)).toHaveTextContent("Replaces kit_1");
     const replacementEvents: HTMLElement = within(dialog).getByRole("list", { name: "Events for kit_2" });
     expect(within(replacementEvents).getAllByRole("listitem").map((item: HTMLElement): string => item.textContent ?? "")).toEqual([
       "Kit shippedMay 19, 2026, 00:00 UTCcarrier",
@@ -112,5 +112,29 @@ describe("Dashboard", () => {
 
     expect(totalOrders()).toBe("2");
     expect(screen.getByLabelText("Country")).toHaveValue("");
+  });
+
+  it("excludes test orders by default and shows what was cleaned", () => {
+    const dataset: Dataset = {
+      orders: [makeOrder("ord_1"), { ...makeOrder("ord_test"), isTest: "true" }],
+      kitEvents: [
+        makeEvent("ord_1", "kit_1", "kit_shipped", "2026-05-02T00:00:00Z"),
+        { ...makeEvent("ord_1", "kit_1", "kit_shipped", "2026-05-02T00:00:00Z"), eventId: "evt_dupe" },
+        makeEvent("ord_orphan", "kit_orphan", "kit_shipped", "2026-05-02T00:00:00Z"),
+      ],
+    };
+    render(<Dashboard data={dataset} />);
+    const totalOrders = (): string | null => screen.getByText("Total orders").nextElementSibling?.textContent ?? null;
+    const countFor = (label: string): string | null => screen.getByText(label).nextElementSibling?.textContent ?? null;
+
+    expect(totalOrders()).toBe("1");
+    expect(countFor("Duplicate events removed")).toBe("1");
+    expect(countFor("Orphan events excluded")).toBe("1");
+    expect(countFor("Test orders excluded")).toBe("1");
+
+    fireEvent.click(screen.getByLabelText("Include test orders"));
+
+    expect(totalOrders()).toBe("2");
+    expect(countFor("Test orders included")).toBe("1");
   });
 });

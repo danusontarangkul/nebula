@@ -77,6 +77,17 @@ export const FilterBar = ({ filters, options, onChange, onClear }: FilterBarProp
             )}
           </select>
         </label>
+        <label className="flex items-center gap-2 py-2 text-sm text-slate-600">
+          <input
+            type="checkbox"
+            checked={filters.includeTestOrders}
+            onChange={(event: ChangeEvent<HTMLInputElement>): void =>
+              onChange({ ...filters, includeTestOrders: event.currentTarget.checked })
+            }
+            className="h-4 w-4"
+          />
+          Include test orders
+        </label>
         <button
           type="button"
           onClick={onClear}
