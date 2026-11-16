@@ -12,6 +12,11 @@
 
 - Convert all timestamps to UTC
 - Timestamps without UTC is treated as UTC
+- Remove duplicate events
+- Exculde unreadable time stamps
+- Remove orphan events
+- Remove rows with empty kit_id or order_id because they can't be used
+- Listing paid orders with no events as stuck
 
 ## What I'd do next with more time
 
