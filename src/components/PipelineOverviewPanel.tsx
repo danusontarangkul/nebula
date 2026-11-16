@@ -1,20 +1,8 @@
 import type { JSX } from "react";
 import { KIT_STAGE_LABELS, KIT_STAGES } from "../constants/pipeline.ts";
 import type { KitStage, PipelineOverview } from "../types/data.ts";
-
-type StatTileProps = {
-  label: string;
-  value: number;
-};
-
-const StatTile = ({ label, value }: StatTileProps): JSX.Element => {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value.toLocaleString()}</p>
-    </div>
-  );
-};
+import { formatCount } from "../utils/formatNumber.ts";
+import { StatTile } from "./StatTile.tsx";
 
 type PipelineOverviewPanelProps = {
   overview: PipelineOverview;
@@ -44,7 +32,7 @@ export const PipelineOverviewPanel = ({ overview }: PipelineOverviewPanelProps):
               <tr key={stage} className="border-b border-slate-100">
                 <td className="py-2">{KIT_STAGE_LABELS[stage]}</td>
                 <td className="py-2 text-right tabular-nums">
-                  {overview.kitsByStage[stage].toLocaleString()}
+                  {formatCount(overview.kitsByStage[stage])}
                 </td>
               </tr>
             ),

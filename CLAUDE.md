@@ -95,6 +95,20 @@ export const toUtcDate = (raw: string): Date | null => {
 };
 ```
 
+### One component per file
+
+- Each `.tsx` file defines exactly one React component
+- Small helper components (cells, tiles, list items) get their own file in `src/components/`, named after the component
+
+### Formatting in utils
+
+- All formatting (dates, numbers, counts, labels, units) lives in `src/utils/`, such as `formatDate.ts` and `formatNumber.ts`
+- Components call format functions. They never format dates or numbers themselves (no `toFixed`, `toLocaleString`, or `Date` formatting)
+
+```tsx
+<td>{formatDays(medianDays)}</td>
+```
+
 ### Services folder
 
 - Code with side effects (network requests, reading files) lives in `src/services/`, never in `src/utils/` or inside a hook file

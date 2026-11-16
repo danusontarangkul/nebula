@@ -1,32 +1,7 @@
 import type { JSX } from "react";
-import { PipelineOverviewPanel } from "./components/PipelineOverviewPanel.tsx";
-import { StageDurationsPanel } from "./components/StageDurationsPanel.tsx";
-import { StuckKitsPanel } from "./components/StuckKitsPanel.tsx";
+import { DataStatus } from "./components/DataStatus.tsx";
 import { useBundledData } from "./hooks/useBundledData.ts";
 import type { AsyncState, Dataset } from "./types/data.ts";
-import { buildPipelineOverview } from "./utils/pipelineOverview.ts";
-import { buildStageDurations } from "./utils/stageDurations.ts";
-import { buildStuckKits } from "./utils/stuckKits.ts";
-
-const DataStatus = ({ state }: { state: AsyncState<Dataset> }): JSX.Element => {
-  if (state.status === "loading") {
-    return <p className="mt-4 text-slate-500">Loading data…</p>;
-  }
-  if (state.status === "error") {
-    return (
-      <p role="alert" className="mt-4 text-red-600">
-        {state.message}
-      </p>
-    );
-  }
-  return (
-    <>
-      <PipelineOverviewPanel overview={buildPipelineOverview(state.data)} />
-      <StageDurationsPanel summary={buildStageDurations(state.data)} />
-      <StuckKitsPanel summary={buildStuckKits(state.data)} />
-    </>
-  );
-};
 
 export const App = (): JSX.Element => {
   const state: AsyncState<Dataset> = useBundledData();

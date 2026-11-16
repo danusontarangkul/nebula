@@ -89,3 +89,22 @@ export type StuckKitsSummary = {
   asOfTime: number | null;
   kits: StuckKit[];
 };
+
+export type KitEventEntry = {
+  eventId: string;
+  eventType: string;
+  occurredAt: string;
+  time: number | null;
+  source: string;
+};
+
+export type KitDetail = {
+  kitId: string;
+  isReplacement: boolean;
+  events: KitEventEntry[];
+};
+
+export type OrderDetail = {
+  order: Order;
+  kits: KitDetail[];
+};
