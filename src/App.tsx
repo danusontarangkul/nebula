@@ -1,6 +1,8 @@
 import type { JSX } from "react";
+import { PipelineOverviewPanel } from "./components/PipelineOverviewPanel.tsx";
 import { useBundledData } from "./hooks/useBundledData.ts";
 import type { AsyncState, Dataset } from "./types/data.ts";
+import { buildPipelineOverview } from "./utils/pipelineOverview.ts";
 
 const DataStatus = ({ state }: { state: AsyncState<Dataset> }): JSX.Element => {
   if (state.status === "loading") {
@@ -13,7 +15,7 @@ const DataStatus = ({ state }: { state: AsyncState<Dataset> }): JSX.Element => {
       </p>
     );
   }
-  return <p className="mt-4 text-slate-500">Data loaded</p>;
+  return <PipelineOverviewPanel overview={buildPipelineOverview(state.data)} />;
 };
 
 export const App = (): JSX.Element => {
