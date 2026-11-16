@@ -26,3 +26,21 @@ export type AsyncState<T> =
   | { status: "loading" }
   | { status: "error"; message: string }
   | { status: "success"; data: T };
+
+export type KitStage =
+  | "kit_shipped"
+  | "kit_delivered"
+  | "sample_mailed"
+  | "sample_received"
+  | "qc_passed"
+  | "qc_failed"
+  | "sequencing_complete"
+  | "report_ready"
+  | "kit_replaced";
+
+export type PipelineOverview = {
+  totalOrders: number;
+  totalKits: number;
+  finishedKits: number;
+  kitsByStage: Record<KitStage, number>;
+};

@@ -24,7 +24,7 @@ describe("App", () => {
     vi.restoreAllMocks();
   });
 
-  it("shows a loading state, then loads and logs the bundled data", async () => {
+  it("shows a loading state, then the pipeline overview", async () => {
     const logSpy: MockInstance<typeof console.log> = vi.spyOn(console, "log").mockImplementation((): void => {});
     mockFetch({
       "orders.csv": new Response(ORDERS_CSV),
@@ -34,7 +34,7 @@ describe("App", () => {
     render(<App />);
 
     expect(screen.getByText("Loading data…")).toBeInTheDocument();
-    expect(await screen.findByText("Data loaded")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Pipeline overview" })).toBeInTheDocument();
     expect(logSpy).toHaveBeenCalledWith(
       "Loaded bundled data",
       expect.objectContaining({
