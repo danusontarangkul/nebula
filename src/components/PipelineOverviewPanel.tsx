@@ -1,8 +1,12 @@
 import type { JSX } from "react";
-import { KIT_STAGE_LABELS, KIT_STAGES } from "../constants/pipeline.ts";
+import { KIT_STAGES } from "../constants/pipeline.ts";
 import type { KitStage, PipelineOverview } from "../types/data.ts";
-import { formatCount } from "../utils/formatNumber.ts";
-import { StatTile } from "./StatTile.tsx";
+import { Panel } from "./shared/Panel.tsx";
+import { StatTile } from "./shared/StatTile.tsx";
+import { TableHeaderCell } from "./shared/TableHeaderCell.tsx";
+import { TableHeaderRow } from "./shared/TableHeaderRow.tsx";
+import { StageCountRow } from "./StageCountRow.tsx";
+import { TileGrid } from "./shared/TileGrid.tsx";
 
 type PipelineOverviewPanelProps = {
   overview: PipelineOverview;
@@ -10,35 +14,27 @@ type PipelineOverviewPanelProps = {
 
 export const PipelineOverviewPanel = ({ overview }: PipelineOverviewPanelProps): JSX.Element => {
   return (
-    <section aria-labelledby="pipeline-overview-heading" className="mt-6">
-      <h2 id="pipeline-overview-heading" className="text-xl font-semibold">
-        Pipeline overview
-      </h2>
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <Panel id="pipeline-overview" title="Pipeline overview">
+      <TileGrid>
         <StatTile label="Total orders" value={overview.totalOrders} />
         <StatTile label="Total kits" value={overview.totalKits} />
         <StatTile label="Kits finished" value={overview.finishedKits} />
-      </div>
+      </TileGrid>
       <table className="mt-6 w-full max-w-md border-collapse text-left text-sm">
         <thead>
-          <tr className="border-b border-slate-200 text-slate-500">
-            <th className="py-2 font-medium">Current stage</th>
-            <th className="py-2 text-right font-medium">Kits</th>
-          </tr>
+          <TableHeaderRow>
+            <TableHeaderCell align="left">Current stage</TableHeaderCell>
+            <TableHeaderCell align="right">Kits</TableHeaderCell>
+          </TableHeaderRow>
         </thead>
         <tbody>
           {KIT_STAGES.map(
             (stage: KitStage): JSX.Element => (
-              <tr key={stage} className="border-b border-slate-100">
-                <td className="py-2">{KIT_STAGE_LABELS[stage]}</td>
-                <td className="py-2 text-right tabular-nums">
-                  {formatCount(overview.kitsByStage[stage])}
-                </td>
-              </tr>
+              <StageCountRow key={stage} stage={stage} count={overview.kitsByStage[stage]} />
             ),
           )}
         </tbody>
       </table>
-    </section>
+    </Panel>
   );
 };

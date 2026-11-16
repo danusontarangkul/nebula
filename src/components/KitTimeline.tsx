@@ -1,7 +1,6 @@
 import type { JSX } from "react";
 import type { KitDetail, KitEventEntry } from "../types/data.ts";
-import { formatTimestamp } from "../utils/formatDate.ts";
-import { formatEventType } from "../utils/formatEventType.ts";
+import { KitEventItem } from "./KitEventItem.tsx";
 
 type KitTimelineProps = {
   kit: KitDetail;
@@ -22,11 +21,7 @@ export const KitTimeline = ({ kit, index }: KitTimelineProps): JSX.Element => {
       <ol aria-label={`Events for ${kit.kitId}`} className="mt-3 space-y-2 border-l border-slate-200 pl-4">
         {kit.events.map(
           (entry: KitEventEntry): JSX.Element => (
-            <li key={entry.eventId} className="text-sm">
-              <span className="font-medium">{formatEventType(entry.eventType)}</span>
-              <span className="ml-2 text-slate-500">{formatTimestamp(entry.occurredAt)}</span>
-              <span className="ml-2 text-xs text-slate-400">{entry.source}</span>
-            </li>
+            <KitEventItem key={entry.eventId} entry={entry} />
           ),
         )}
       </ol>

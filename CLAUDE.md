@@ -16,6 +16,7 @@ React, TypeScript, Vite, Tailwind CSS, PapaParse, Recharts, Vitest, React Testin
 ```
 src/
   components/   React components (UI only)
+    shared/     Generic, reusable UI components with no dashboard knowledge
   hooks/        React hooks
   services/     Side effects: fetching and reading files
   utils/        Pure functions: parsing, cleaning, metrics
@@ -100,6 +101,38 @@ export const toUtcDate = (raw: string): Date | null => {
 - Each `.tsx` file defines exactly one React component
 - Small helper components (cells, tiles, list items) get their own file in `src/components/`, named after the component
 
+### List items get their own component
+
+- When a `map` renders an item with more than one element, or calls a formatter, the item becomes its own component (e.g. `KitEventItem`, `StuckKitRow`, `StageDurationRow`, `StageCountRow`)
+- Items that are a single element (an `<option>`, one `Skeleton`, one cell) stay inline in the `map`
+- The parent component is the list container. Only add a separate list component when the list has its own structure worth reusing, such as a heading, an empty state, or a scroll wrapper
+
+```tsx
+{kit.events.map(
+  (entry: KitEventEntry): JSX.Element => (
+    <KitEventItem key={entry.eventId} entry={entry} />
+  ),
+)}
+```
+
+### Shared components
+
+- Generic, reusable UI components live in `src/components/shared/`, such as `Panel`, `Card`, `Button`, `FormField`, `StatTile`, `StatRow`, `TileGrid`, `DetailItem`, the table parts (`TableHeaderRow`, `TableHeaderCell`, `TableRow`, `TableCell`), `Skeleton`, `Spinner`, and `ErrorMessage`
+- A component belongs in `shared/` when it knows nothing about orders, kits, or pipeline stages and only takes generic props (labels, values, children, class names)
+- Components tied to the dashboard's data (panels, `DurationCell`, `KitTimeline`, `DashboardSkeleton`) stay in `src/components/`
+- Before writing a new simple component, check `shared/` for one that already fits
+
+### No repeated styling
+
+- When the same set of Tailwind classes appears in more than one place, turn it into a component so the styling stays consistent
+- Put the component in `src/components/shared/` if it is generic, otherwise in `src/components/`
+- Use the existing shared components instead of rewriting their classes: `Panel` for dashboard sections, `Card` for boxed controls, `Button` for buttons, `FormField` for labelled inputs, and the table parts for tables
+- Single utility classes such as `font-mono` or `sr-only` don't count
+
+```tsx
+<StatRow label="Duplicate events removed" value={report.duplicateEvents} />
+```
+
 ### Formatting in utils
 
 - All formatting (dates, numbers, counts, labels, units) lives in `src/utils/`, such as `formatDate.ts` and `formatNumber.ts`
@@ -129,6 +162,10 @@ export const fetchText = async (fileName: string): Promise<string> => {
 
 - Every async operation (loading the bundled CSVs, uploading CSVs) uses a single state type
 - Every component that shows async data renders all three states
+- Never hand-write loading or error markup. Use the shared components:
+  - `Skeleton` (`src/components/shared/Skeleton.tsx`): loading content whose layout is known. Compose skeletons into a layout-shaped placeholder such as `DashboardSkeleton`
+  - `Spinner` (`src/components/shared/Spinner.tsx`): inline loading for an action while the current content stays on screen, such as uploading files
+  - `ErrorMessage` (`src/components/shared/ErrorMessage.tsx`): every error, including "not found" messages
 
 ```ts
 export type AsyncState<T> =
@@ -142,10 +179,10 @@ export const Dashboard = (): JSX.Element => {
   const state: AsyncState<DashboardData> = useDashboardData();
 
   if (state.status === "loading") {
-    return <LoadingState />;
+    return <DashboardSkeleton label="Loading data…" />;
   }
   if (state.status === "error") {
-    return <ErrorState message={state.message} />;
+    return <ErrorMessage>{state.message}</ErrorMessage>;
   }
   return <DashboardView data={state.data} />;
 };

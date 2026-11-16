@@ -1,5 +1,5 @@
 import type { JSX } from "react";
-import { formatCount } from "../utils/formatNumber.ts";
+import { formatCount } from "../../utils/formatNumber.ts";
 
 type StatTileProps = {
   label: string;

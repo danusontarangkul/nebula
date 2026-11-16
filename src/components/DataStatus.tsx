@@ -1,6 +1,8 @@
 import type { JSX } from "react";
 import type { AsyncState, Dataset } from "../types/data.ts";
 import { Dashboard } from "./Dashboard.tsx";
+import { DashboardSkeleton } from "./DashboardSkeleton.tsx";
+import { ErrorMessage } from "./shared/ErrorMessage.tsx";
 
 type DataStatusProps = {
   state: AsyncState<Dataset>;
@@ -9,14 +11,10 @@ type DataStatusProps = {
 
 export const DataStatus = ({ state, dataKey }: DataStatusProps): JSX.Element => {
   if (state.status === "loading") {
-    return <p className="mt-4 text-slate-500">Loading data…</p>;
+    return <DashboardSkeleton label="Loading data…" />;
   }
   if (state.status === "error") {
-    return (
-      <p role="alert" className="mt-4 text-red-600">
-        {state.message}
-      </p>
-    );
+    return <ErrorMessage>{state.message}</ErrorMessage>;
   }
   return <Dashboard key={dataKey} data={state.data} />;
 };
