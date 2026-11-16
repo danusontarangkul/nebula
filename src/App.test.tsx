@@ -84,9 +84,9 @@ describe("App", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Load files" }));
 
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      "Showing uploaded data from orders_new.csv and kit_events_new.csv",
-    );
+    expect(
+      await screen.findByText("Showing uploaded data from orders_new.csv and kit_events_new.csv"),
+    ).toBeInTheDocument();
     await waitFor((): void => {
       expect(totalOrders()).toBe("2");
     });

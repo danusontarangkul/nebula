@@ -1,7 +1,7 @@
 import { useEffect, type JSX } from "react";
 import type { KitDetail, OrderDetail } from "../types/data.ts";
 import { formatTimestamp } from "../utils/formatDate.ts";
-import { DetailItem } from "./DetailItem.tsx";
+import { DetailItem } from "./shared/DetailItem.tsx";
 import { KitTimeline } from "./KitTimeline.tsx";
 
 type OrderDetailDialogProps = {

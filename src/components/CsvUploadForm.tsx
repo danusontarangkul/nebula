@@ -1,5 +1,10 @@
 import { useState, type ChangeEvent, type Dispatch, type JSX, type SetStateAction, type SubmitEvent } from "react";
 import type { UploadState } from "../types/data.ts";
+import { Button } from "./shared/Button.tsx";
+import { Card } from "./shared/Card.tsx";
+import { ErrorMessage } from "./shared/ErrorMessage.tsx";
+import { FormField } from "./shared/FormField.tsx";
+import { Spinner } from "./shared/Spinner.tsx";
 
 type CsvUploadFormProps = {
   state: UploadState;
@@ -28,13 +33,9 @@ export const CsvUploadForm = ({ state, onUpload }: CsvUploadFormProps): JSX.Elem
   };
 
   return (
-    <section aria-labelledby="csv-upload-heading" className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
-      <h2 id="csv-upload-heading" className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-        Load your own CSVs
-      </h2>
+    <Card id="csv-upload" title="Load your own CSVs">
       <form onSubmit={handleSubmit} className="mt-2 flex flex-wrap items-end gap-4">
-        <label className="flex flex-col text-sm text-slate-600">
-          Orders CSV
+        <FormField label="Orders CSV">
           <input
             type="file"
             accept=".csv,text/csv"
@@ -43,9 +44,8 @@ export const CsvUploadForm = ({ state, onUpload }: CsvUploadFormProps): JSX.Elem
             }
             className={FILE_INPUT_CLASS}
           />
-        </label>
-        <label className="flex flex-col text-sm text-slate-600">
-          Kit events CSV
+        </FormField>
+        <FormField label="Kit events CSV">
           <input
             type="file"
             accept=".csv,text/csv"
@@ -54,26 +54,20 @@ export const CsvUploadForm = ({ state, onUpload }: CsvUploadFormProps): JSX.Elem
             }
             className={FILE_INPUT_CLASS}
           />
-        </label>
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-        >
+        </FormField>
+        <Button type="submit" variant="primary" disabled={!canSubmit}>
           Load files
-        </button>
+        </Button>
       </form>
-      {state.status === "loading" && <p className="mt-2 text-sm text-slate-500">Loading files…</p>}
+      {state.status === "loading" && <Spinner label="Loading files…" />}
       {state.status === "error" && (
-        <p role="alert" className="mt-2 text-sm text-red-600">
-          {state.message}. The current data is still loaded.
-        </p>
+        <ErrorMessage>{state.message}. The current data is still loaded.</ErrorMessage>
       )}
       {state.status === "success" && (
         <p role="status" className="mt-2 text-sm text-green-700">
           Showing uploaded data from {state.fileNames.join(" and ")}
         </p>
       )}
-    </section>
+    </Card>
   );
 };

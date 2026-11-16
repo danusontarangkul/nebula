@@ -1,5 +1,8 @@
 import type { ChangeEvent, JSX } from "react";
 import type { DashboardFilters, FilterOptions } from "../types/data.ts";
+import { Button } from "./shared/Button.tsx";
+import { Card } from "./shared/Card.tsx";
+import { FormField } from "./shared/FormField.tsx";
 
 type FilterBarProps = {
   filters: DashboardFilters;
@@ -12,13 +15,9 @@ const FIELD_CLASS: string = "mt-1 rounded-md border border-slate-300 bg-white px
 
 export const FilterBar = ({ filters, options, onChange, onClear }: FilterBarProps): JSX.Element => {
   return (
-    <section aria-labelledby="filters-heading" className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
-      <h2 id="filters-heading" className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-        Filters
-      </h2>
+    <Card id="filters" title="Filters">
       <div className="mt-2 flex flex-wrap items-end gap-3">
-        <label className="flex flex-col text-sm text-slate-600">
-          Ordered from
+        <FormField label="Ordered from">
           <input
             type="date"
             value={filters.startDate}
@@ -27,9 +26,8 @@ export const FilterBar = ({ filters, options, onChange, onClear }: FilterBarProp
             }
             className={FIELD_CLASS}
           />
-        </label>
-        <label className="flex flex-col text-sm text-slate-600">
-          Ordered to
+        </FormField>
+        <FormField label="Ordered to">
           <input
             type="date"
             value={filters.endDate}
@@ -38,9 +36,8 @@ export const FilterBar = ({ filters, options, onChange, onClear }: FilterBarProp
             }
             className={FIELD_CLASS}
           />
-        </label>
-        <label className="flex flex-col text-sm text-slate-600">
-          Product
+        </FormField>
+        <FormField label="Product">
           <select
             value={filters.product}
             onChange={(event: ChangeEvent<HTMLSelectElement>): void =>
@@ -57,9 +54,8 @@ export const FilterBar = ({ filters, options, onChange, onClear }: FilterBarProp
               ),
             )}
           </select>
-        </label>
-        <label className="flex flex-col text-sm text-slate-600">
-          Country
+        </FormField>
+        <FormField label="Country">
           <select
             value={filters.country}
             onChange={(event: ChangeEvent<HTMLSelectElement>): void =>
@@ -76,7 +72,7 @@ export const FilterBar = ({ filters, options, onChange, onClear }: FilterBarProp
               ),
             )}
           </select>
-        </label>
+        </FormField>
         <label className="flex items-center gap-2 py-2 text-sm text-slate-600">
           <input
             type="checkbox"
@@ -88,14 +84,10 @@ export const FilterBar = ({ filters, options, onChange, onClear }: FilterBarProp
           />
           Include test orders
         </label>
-        <button
-          type="button"
-          onClick={onClear}
-          className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-        >
+        <Button type="button" variant="secondary" onClick={onClear}>
           Clear filters
-        </button>
+        </Button>
       </div>
-    </section>
+    </Card>
   );
 };

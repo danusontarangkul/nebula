@@ -1,4 +1,8 @@
 import { useState, type Dispatch, type ChangeEvent, type JSX, type SubmitEvent, type SetStateAction } from "react";
+import { Button } from "./shared/Button.tsx";
+import { ErrorMessage } from "./shared/ErrorMessage.tsx";
+import { FormField } from "./shared/FormField.tsx";
+import { Panel } from "./shared/Panel.tsx";
 
 type OrderSearchProps = {
   onSearch: (orderId: string) => boolean;
@@ -21,13 +25,9 @@ export const OrderSearch = ({ onSearch, notFoundOrderId }: OrderSearchProps): JS
   };
 
   return (
-    <section aria-labelledby="order-search-heading" className="mt-6">
-      <h2 id="order-search-heading" className="text-xl font-semibold">
-        Order lookup
-      </h2>
+    <Panel id="order-search" title="Order lookup">
       <form onSubmit={handleSubmit} className="mt-3 flex flex-wrap items-end gap-2">
-        <label className="flex flex-col text-sm text-slate-600">
-          Order ID
+        <FormField label="Order ID">
           <input
             type="search"
             value={query}
@@ -35,19 +35,16 @@ export const OrderSearch = ({ onSearch, notFoundOrderId }: OrderSearchProps): JS
             placeholder="ord_9w0yp"
             className="mt-1 w-64 rounded-md border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900"
           />
-        </label>
-        <button
-          type="submit"
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
-        >
+        </FormField>
+        <Button type="submit" variant="primary">
           Look up
-        </button>
+        </Button>
       </form>
       {notFoundOrderId !== null && (
-        <p role="alert" className="mt-2 text-sm text-red-600">
+        <ErrorMessage>
           No order found for <span className="font-mono">{notFoundOrderId}</span>
-        </p>
+        </ErrorMessage>
       )}
-    </section>
+    </Panel>
   );
 };
