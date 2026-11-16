@@ -3,14 +3,20 @@ import { EMPTY_FILTERS } from "../constants/filters.ts";
 import type { Dataset, KitEvent, Order } from "../types/data.ts";
 import { filterDataset, hasActiveFilters } from "./filterDataset.ts";
 
-const makeOrder = (orderId: string, createdAt: string, product: string, country: string): Order => ({
+const makeOrder = (
+  orderId: string,
+  createdAt: string,
+  product: string,
+  country: string,
+  isTest: string = "false",
+): Order => ({
   orderId,
   createdAt,
   customerId: "cus_1",
   product,
   country,
   status: "paid",
-  isTest: "false",
+  isTest,
 });
 
 const makeEvent = (orderId: string): KitEvent => ({
@@ -47,8 +53,27 @@ describe("hasActiveFilters", () => {
 });
 
 describe("filterDataset", () => {
-  it("returns the dataset unchanged when no filters are set", () => {
-    expect(filterDataset(DATASET, EMPTY_FILTERS)).toBe(DATASET);
+  it("returns the dataset unchanged when no filters are set and test orders are included", () => {
+    expect(filterDataset(DATASET, { ...EMPTY_FILTERS, includeTestOrders: true })).toBe(DATASET);
+  });
+
+  it("excludes test orders and their events by default", () => {
+    const dataset: Dataset = {
+      orders: [...DATASET.orders, makeOrder("ord_test", "2026-05-15T12:00:00Z", "wgs_30x", "US", "true")],
+      kitEvents: [...DATASET.kitEvents, makeEvent("ord_test")],
+    };
+    const result: Dataset = filterDataset(dataset, EMPTY_FILTERS);
+    expect(getOrderIds(result)).not.toContain("ord_test");
+    expect(result.kitEvents.map((kitEvent: KitEvent): string => kitEvent.orderId)).not.toContain("ord_test");
+  });
+
+  it("keeps test orders when they are included", () => {
+    const dataset: Dataset = {
+      orders: [makeOrder("ord_test", "2026-05-15T12:00:00Z", "wgs_30x", "US", "true")],
+      kitEvents: [],
+    };
+    const result: Dataset = filterDataset(dataset, { ...EMPTY_FILTERS, includeTestOrders: true, country: "US" });
+    expect(getOrderIds(result)).toEqual(["ord_test"]);
   });
 
   it("filters by product", () => {

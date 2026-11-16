@@ -9,14 +9,14 @@ import type {
   StuckKit,
   StuckKitsSummary,
 } from "../types/data.ts";
+import { isTestOrder } from "./isTestOrder.ts";
 import { buildKitTimelines } from "./kitTimelines.ts";
 
 const EXCLUDED_ORDER_STATUSES: readonly string[] = ["cancelled", "refunded"];
 
 const isExcludedOrder = (order: Order): boolean => {
   const status: string = order.status.trim().toLowerCase();
-  const isTest: boolean = order.isTest.trim().toLowerCase() === "true";
-  return isTest || EXCLUDED_ORDER_STATUSES.includes(status);
+  return isTestOrder(order) || EXCLUDED_ORDER_STATUSES.includes(status);
 };
 
 const getFurthestStage = (timeline: KitTimeline): KitStage | null => {

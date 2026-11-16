@@ -5,4 +5,5 @@ export const EMPTY_FILTERS: DashboardFilters = {
   endDate: "",
   product: "",
   country: "",
+  includeTestOrders: false,
 };

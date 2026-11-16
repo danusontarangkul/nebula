@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState, type Dispatch, type JSX, type SetStateAction } from "react";
 import { EMPTY_FILTERS } from "../constants/filters.ts";
 import type {
+  CleanedData,
   DashboardFilters,
   Dataset,
   FilterOptions,
@@ -9,6 +10,7 @@ import type {
   StageDurationSummary,
   StuckKitsSummary,
 } from "../types/data.ts";
+import { cleanDataset } from "../utils/cleanDataset.ts";
 import { filterDataset } from "../utils/filterDataset.ts";
 import { getFilterOptions } from "../utils/filterOptions.ts";
 import { buildKitTimelines } from "../utils/kitTimelines.ts";
@@ -16,6 +18,7 @@ import { buildOrderDetail } from "../utils/orderDetail.ts";
 import { buildPipelineOverview } from "../utils/pipelineOverview.ts";
 import { buildStageDurations } from "../utils/stageDurations.ts";
 import { buildStuckKits, getAsOfTime } from "../utils/stuckKits.ts";
+import { DataQualityPanel } from "./DataQualityPanel.tsx";
 import { FilterBar } from "./FilterBar.tsx";
 import { OrderDetailDialog } from "./OrderDetailDialog.tsx";
 import { OrderSearch } from "./OrderSearch.tsx";
@@ -34,12 +37,17 @@ export const Dashboard = ({ data }: DashboardProps): JSX.Element => {
   const [filters, setFilters]: [DashboardFilters, Dispatch<SetStateAction<DashboardFilters>>] =
     useState<DashboardFilters>(EMPTY_FILTERS);
 
-  const filterOptions: FilterOptions = useMemo((): FilterOptions => getFilterOptions(data), [data]);
+  const cleaned: CleanedData = useMemo((): CleanedData => cleanDataset(data), [data]);
+  const cleanData: Dataset = cleaned.dataset;
+  const filterOptions: FilterOptions = useMemo((): FilterOptions => getFilterOptions(cleanData), [cleanData]);
   const asOfTime: number | null = useMemo(
-    (): number | null => getAsOfTime(buildKitTimelines(data.kitEvents)),
-    [data],
+    (): number | null => getAsOfTime(buildKitTimelines(cleanData.kitEvents)),
+    [cleanData],
   );
-  const filteredData: Dataset = useMemo((): Dataset => filterDataset(data, filters), [data, filters]);
+  const filteredData: Dataset = useMemo(
+    (): Dataset => filterDataset(cleanData, filters),
+    [cleanData, filters],
+  );
 
   const overview: PipelineOverview = useMemo(
     (): PipelineOverview => buildPipelineOverview(filteredData),
@@ -54,13 +62,13 @@ export const Dashboard = ({ data }: DashboardProps): JSX.Element => {
     [filteredData, asOfTime],
   );
   const orderDetail: OrderDetail | null = useMemo(
-    (): OrderDetail | null => (selectedOrderId === null ? null : buildOrderDetail(data, selectedOrderId)),
-    [data, selectedOrderId],
+    (): OrderDetail | null => (selectedOrderId === null ? null : buildOrderDetail(cleanData, selectedOrderId)),
+    [cleanData, selectedOrderId],
   );
 
   const searchOrder = (orderId: string): boolean => {
     setSelectedOrderId(orderId);
-    return buildOrderDetail(data, orderId) !== null;
+    return buildOrderDetail(cleanData, orderId) !== null;
   };
 
   const closeOrder: () => void = useCallback((): void => {
@@ -80,6 +88,7 @@ export const Dashboard = ({ data }: DashboardProps): JSX.Element => {
       <PipelineOverviewPanel overview={overview} />
       <StageDurationsPanel summary={stageDurations} />
       <StuckKitsPanel summary={stuckKits} onSelectOrder={setSelectedOrderId} />
+      <DataQualityPanel report={cleaned.report} includeTestOrders={filters.includeTestOrders} />
       {orderDetail !== null && <OrderDetailDialog detail={orderDetail} onClose={closeOrder} />}
     </>
   );
