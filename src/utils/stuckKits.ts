@@ -45,12 +45,12 @@ export const getAsOfTime = (timelines: Map<string, KitTimeline>): number | null 
   return latestTime;
 };
 
-export const buildStuckKits = (dataset: Dataset): StuckKitsSummary => {
+export const buildStuckKits = (dataset: Dataset, fixedAsOfTime?: number | null): StuckKitsSummary => {
   const ordersById: Map<string, Order> = new Map(
     dataset.orders.map((order: Order): [string, Order] => [order.orderId, order]),
   );
   const timelines: Map<string, KitTimeline> = buildKitTimelines(dataset.kitEvents);
-  const asOfTime: number | null = getAsOfTime(timelines);
+  const asOfTime: number | null = fixedAsOfTime === undefined ? getAsOfTime(timelines) : fixedAsOfTime;
   if (asOfTime === null) {
     return { asOfTime, kits: [] };
   }

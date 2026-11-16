@@ -121,4 +121,14 @@ describe("buildStuckKits", () => {
   it("returns no kits and a null as-of date for an empty dataset", () => {
     expect(buildStuckKits({ orders: [], kitEvents: [] })).toEqual({ asOfTime: null, kits: [] });
   });
+
+  it("measures to a given as-of time instead of the dataset's latest event", () => {
+    const dataset: Dataset = {
+      orders: [makeOrder("ord_1")],
+      kitEvents: [makeEvent("ord_1", "kit_1", "kit_shipped", "2026-10-03T00:00:00Z")],
+    };
+    const summary: StuckKitsSummary = buildStuckKits(dataset, Date.UTC(2026, 9, 20));
+    expect(summary.asOfTime).toBe(Date.UTC(2026, 9, 20));
+    expect(summary.kits[0]?.daysOverTarget).toBe(10);
+  });
 });
