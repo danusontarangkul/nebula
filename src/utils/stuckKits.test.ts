@@ -67,7 +67,7 @@ describe("buildStuckKits", () => {
       ],
     };
     const summary: StuckKitsSummary = buildStuckKits(dataset);
-    expect(summary.kits.map((kit: StuckKitsSummary["kits"][number]): string => kit.kitId)).toEqual([
+    expect(summary.kits.map((kit: StuckKitsSummary["kits"][number]): string | null => kit.kitId)).toEqual([
       "kit_2",
       "kit_1",
     ]);
@@ -130,5 +130,40 @@ describe("buildStuckKits", () => {
     const summary: StuckKitsSummary = buildStuckKits(dataset, Date.UTC(2026, 9, 20));
     expect(summary.asOfTime).toBe(Date.UTC(2026, 9, 20));
     expect(summary.kits[0]?.daysOverTarget).toBe(10);
+  });
+
+  it("lists paid kit orders with no events once they are past the 3-day ship target", () => {
+    const dataset: Dataset = {
+      orders: [
+        { ...makeOrder("ord_late"), createdAt: "2026-10-10T00:00:00Z" },
+        { ...makeOrder("ord_recent"), createdAt: "2026-10-18T00:00:00Z" },
+      ],
+      kitEvents: [AS_OF_EVENT],
+    };
+    expect(buildStuckKits(dataset).kits).toEqual([
+      { orderId: "ord_late", kitId: null, product: "wgs_30x", currentStage: "awaiting_shipment", daysOverTarget: 7 },
+    ]);
+  });
+
+  it("does not list unshipped orders that are upload-only, cancelled, refunded, test, or undated", () => {
+    const dataset: Dataset = {
+      orders: [
+        { ...makeOrder("ord_upload", { product: "upload_only" }), createdAt: "2026-06-01T00:00:00Z" },
+        { ...makeOrder("ord_cancelled", { status: "cancelled" }), createdAt: "2026-06-01T00:00:00Z" },
+        { ...makeOrder("ord_refunded", { status: "refunded" }), createdAt: "2026-06-01T00:00:00Z" },
+        { ...makeOrder("ord_test", { isTest: "true" }), createdAt: "2026-06-01T00:00:00Z" },
+        { ...makeOrder("ord_undated"), createdAt: "not a date" },
+      ],
+      kitEvents: [AS_OF_EVENT],
+    };
+    expect(buildStuckKits(dataset).kits).toEqual([]);
+  });
+
+  it("does not treat an order with events as awaiting shipment", () => {
+    const dataset: Dataset = {
+      orders: [{ ...makeOrder("ord_1"), createdAt: "2026-06-01T00:00:00Z" }],
+      kitEvents: [AS_OF_EVENT, makeEvent("ord_1", "kit_1", "report_ready", "2026-07-01T00:00:00Z")],
+    };
+    expect(buildStuckKits(dataset).kits).toEqual([]);
   });
 });

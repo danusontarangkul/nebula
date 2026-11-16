@@ -87,6 +87,29 @@ describe("cleanDataset", () => {
     expect(result.report.testOrders).toBe(1);
   });
 
+  it("excludes orders with a blank order ID and counts them", () => {
+    const result: CleanedData = cleanDataset({
+      orders: [makeOrder("ord_1"), makeOrder(""), makeOrder("   ")],
+      kitEvents: [],
+    });
+    expect(result.dataset.orders.map((order: Order): string => order.orderId)).toEqual(["ord_1"]);
+    expect(result.report.missingIdOrders).toBe(2);
+  });
+
+  it("excludes events with a blank order or kit ID and counts them", () => {
+    const result: CleanedData = cleanDataset({
+      orders: [makeOrder("ord_1")],
+      kitEvents: [
+        makeEvent("evt_1", "ord_1", "kit_shipped", "2026-05-02T10:00:00Z"),
+        makeEvent("evt_2", "", "kit_shipped", "2026-05-02T10:00:00Z"),
+        { ...makeEvent("evt_3", "ord_1", "kit_delivered", "2026-05-04T10:00:00Z"), kitId: " " },
+      ],
+    });
+    expect(result.dataset.kitEvents.map((kitEvent: KitEvent): string => kitEvent.eventId)).toEqual(["evt_1"]);
+    expect(result.report.missingIdEvents).toBe(2);
+    expect(result.report.orphanEvents).toBe(0);
+  });
+
   it("trims event types", () => {
     const result: CleanedData = cleanDataset({
       orders: [makeOrder("ord_1")],

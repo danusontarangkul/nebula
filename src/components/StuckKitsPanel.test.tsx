@@ -47,4 +47,22 @@ describe("StuckKitsPanel", () => {
 
     expect(onSelectOrder).toHaveBeenCalledWith("ord_1");
   });
+
+  it("shows an unshipped order with no kit ID", () => {
+    const summary: StuckKitsSummary = {
+      asOfTime: Date.UTC(2026, 9, 20),
+      kits: [
+        { orderId: "ord_9", kitId: null, product: "wgs_100x", currentStage: "awaiting_shipment", daysOverTarget: 5.6 },
+      ],
+    };
+
+    render(<StuckKitsPanel summary={summary} onSelectOrder={vi.fn()} />);
+
+    const kitRow: HTMLElement | undefined = screen.getAllByRole("row")[1];
+    if (kitRow === undefined) {
+      throw new Error("Row missing");
+    }
+    expect(within(kitRow).getByText("—")).toBeInTheDocument();
+    expect(within(kitRow).getByText("Awaiting shipment")).toBeInTheDocument();
+  });
 });

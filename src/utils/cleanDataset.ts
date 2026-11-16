@@ -8,18 +8,32 @@ const isAlreadyUtc = (raw: string): boolean => {
   return UTC_SUFFIX.test(raw.trim());
 };
 
+const isBlank = (value: string): boolean => {
+  return value.trim() === "";
+};
+
 const normalizeTimestamp = (raw: string): string | null => {
   const date: Date | null = toUtcDate(raw);
   return date === null ? null : date.toISOString();
 };
 
 export const cleanDataset = (dataset: Dataset): CleanedData => {
+  let missingIdOrders: number = 0;
+  let missingIdEvents: number = 0;
   let normalizedTimestamps: number = 0;
   let invalidTimestampEvents: number = 0;
   let orphanEvents: number = 0;
   let duplicateEvents: number = 0;
 
-  const orders: Order[] = dataset.orders.map((order: Order): Order => {
+  const ordersWithIds: Order[] = dataset.orders.filter((order: Order): boolean => {
+    if (isBlank(order.orderId)) {
+      missingIdOrders += 1;
+      return false;
+    }
+    return true;
+  });
+
+  const orders: Order[] = ordersWithIds.map((order: Order): Order => {
     const createdAt: string | null = normalizeTimestamp(order.createdAt);
     if (createdAt === null) {
       return order;
@@ -34,6 +48,10 @@ export const cleanDataset = (dataset: Dataset): CleanedData => {
   const seenEventKeys: Set<string> = new Set();
   const kitEvents: KitEvent[] = [];
   for (const kitEvent of dataset.kitEvents) {
+    if (isBlank(kitEvent.orderId) || isBlank(kitEvent.kitId)) {
+      missingIdEvents += 1;
+      continue;
+    }
     const occurredAt: string | null = normalizeTimestamp(kitEvent.occurredAt);
     if (occurredAt === null) {
       invalidTimestampEvents += 1;
@@ -59,6 +77,8 @@ export const cleanDataset = (dataset: Dataset): CleanedData => {
   return {
     dataset: { orders, kitEvents },
     report: {
+      missingIdOrders,
+      missingIdEvents,
       normalizedTimestamps,
       invalidTimestampEvents,
       orphanEvents,

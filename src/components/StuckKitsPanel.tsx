@@ -36,7 +36,7 @@ export const StuckKitsPanel = ({ summary, onSelectOrder }: StuckKitsPanelProps):
             <tbody>
               {summary.kits.map(
                 (kit: StuckKit): JSX.Element => (
-                  <StuckKitRow key={kit.kitId} kit={kit} onSelectOrder={onSelectOrder} />
+                  <StuckKitRow key={kit.kitId ?? kit.orderId} kit={kit} onSelectOrder={onSelectOrder} />
                 ),
               )}
             </tbody>
