@@ -1,0 +1,12 @@
+event_id,order_id,kit_id,event_type,occurred_at,source
+evt_tz0a,ord_tz_au,kit_tz_au,kit_shipped,2026-05-02 23:00:00,system
+evt_tz0b,ord_tz_au,kit_tz_au,kit_delivered,2026-05-06T19:00:00-04:00,carrier
+evt_tz1a,ord_tz_gb,kit_tz_gb,kit_shipped,2026-05-03T09:30:00+10:00,system
+evt_tz1b,ord_tz_gb,kit_tz_gb,kit_delivered,2026-05-06 23:30:00,carrier
+evt_tz2a,ord_tz_us,kit_tz_us,kit_shipped,2026-05-03T02:00:00Z,system
+evt_tz2b,ord_tz_us,kit_tz_us,kit_delivered,2026-05-07T03:00:00+01:00,carrier
+evt_tz3a,ord_tz_nl,kit_tz_nl,kit_shipped,2026-05-02T19:00:00-05:00,system
+evt_tz3b,ord_tz_nl,kit_tz_nl,kit_delivered,2026-05-07T00:00:00Z,carrier
+evt_tz4a,ord_tz_ca,kit_tz_ca,kit_shipped,2026-05-04T07:30:00+01:00,system
+evt_tz4b,ord_tz_ca,kit_tz_ca,kit_delivered,2026-05-07T23:30:00-07:00,carrier
+evt_tz_dupe,ord_tz_nl,kit_tz_nl,kit_delivered,2026-05-06T20:00:00-04:00,carrier
