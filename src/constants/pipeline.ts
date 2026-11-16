@@ -1,4 +1,4 @@
-import type { KitStage } from "../types/data.ts";
+import type { DurationStage, KitStage } from "../types/data.ts";
 
 export const KIT_STAGES: readonly KitStage[] = [
   "kit_shipped",
@@ -35,3 +35,55 @@ export const KIT_STAGE_RANKS: Record<KitStage, number> = {
   report_ready: 7,
   kit_replaced: 8,
 };
+
+export const DURATION_STAGES: readonly DurationStage[] = [
+  {
+    id: "order_to_shipped",
+    label: "Order placed → kit shipped",
+    start: "order_created",
+    end: ["kit_shipped"],
+    targetDays: 3,
+  },
+  {
+    id: "shipped_to_delivered",
+    label: "Kit shipped → delivered",
+    start: "kit_shipped",
+    end: ["kit_delivered"],
+    targetDays: 7,
+  },
+  {
+    id: "delivered_to_mailed",
+    label: "Delivered → sample mailed",
+    start: "kit_delivered",
+    end: ["sample_mailed"],
+    targetDays: 45,
+  },
+  {
+    id: "mailed_to_received",
+    label: "Sample mailed → received at lab",
+    start: "sample_mailed",
+    end: ["sample_received"],
+    targetDays: 14,
+  },
+  {
+    id: "received_to_qc",
+    label: "Received → QC result",
+    start: "sample_received",
+    end: ["qc_passed", "qc_failed"],
+    targetDays: 7,
+  },
+  {
+    id: "qc_to_sequenced",
+    label: "QC passed → sequencing complete",
+    start: "qc_passed",
+    end: ["sequencing_complete"],
+    targetDays: 28,
+  },
+  {
+    id: "sequenced_to_report",
+    label: "Sequencing complete → report ready",
+    start: "sequencing_complete",
+    end: ["report_ready"],
+    targetDays: 5,
+  },
+];

@@ -44,3 +44,30 @@ export type PipelineOverview = {
   finishedKits: number;
   kitsByStage: Record<KitStage, number>;
 };
+
+export type DurationStageId =
+  | "order_to_shipped"
+  | "shipped_to_delivered"
+  | "delivered_to_mailed"
+  | "mailed_to_received"
+  | "received_to_qc"
+  | "qc_to_sequenced"
+  | "sequenced_to_report";
+
+export type DurationStage = {
+  id: DurationStageId;
+  label: string;
+  start: KitStage | "order_created";
+  end: readonly KitStage[];
+  targetDays: number;
+};
+
+export type StageDurationRow = {
+  stage: DurationStage;
+  medianDaysByProduct: Record<string, number | null>;
+};
+
+export type StageDurationSummary = {
+  products: string[];
+  rows: StageDurationRow[];
+};

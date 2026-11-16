@@ -1,8 +1,6 @@
-import { KIT_STAGE_RANKS, KIT_STAGES } from "../constants/pipeline.ts";
+import { KIT_STAGE_RANKS } from "../constants/pipeline.ts";
 import type { Dataset, KitEvent, KitStage, PipelineOverview } from "../types/data.ts";
-
-const isKitStage = (value: string): value is KitStage =>
-  (KIT_STAGES as readonly string[]).includes(value);
+import { isKitStage } from "./isKitStage.ts";
 
 export const getCurrentKitStages = (kitEvents: KitEvent[]): Map<string, KitStage> => {
   const stagesByKitId: Map<string, KitStage> = new Map();
